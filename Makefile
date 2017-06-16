@@ -35,6 +35,12 @@ relclean:
 reltest: rel
 	test/release_test.sh
 
+# style checks
+lint:
+	${REBAR} as lint lint
+
+check: distclean cleantests test reltest dialyzer lint
+
 relgentlerain: export TXN_PROTOCOL=gentlerain
 relgentlerain: relclean cleantests rel
 
@@ -73,4 +79,8 @@ mesos-docker-run-dev: mesos-docker-build-dev
 	docker run -t -i cmeiklejohn/antidote-mesos-dev
 
 docker-build:
-	docker build -f Dockerfiles/Dockerfile -t mweber/antidotedb:ac Dockerfiles
+	docker build -f Dockerfiles/Dockerfile -t antidotedb/antidote Dockerfiles
+
+docker-local:
+	docker run --rm -v $(shell pwd):/code --workdir /code erlang:19 make rel
+	docker build -f Dockerfiles/Dockerfile-local -t antidotedb/antidote:local .
